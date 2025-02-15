@@ -12,7 +12,7 @@ I have used Mysql for backend(Mysql workbench), used the PyMySql for connection
 ### Screenshots
 
 ### Basic UI
-<img src="F:\main project\attendance main\Face-Recognition-Attendance-System-main\demo.png">
+<img src="https://github.com/udayadasari8/Main_project/blob/main/demo.png">
 
 ### Notes
 -   I Have used Twilio for SMS integration.
