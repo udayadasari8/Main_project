@@ -9,6 +9,7 @@ import pandas as pd
 import datetime
 import time
 from twilio.rest import Client
+from pathlib import Path
 # lines  193 253 536 565 605 lo path change cheyali mi system lo untunna path ki
 def send_sms(number, message):
     account_sid = ''
@@ -17,7 +18,7 @@ def send_sms(number, message):
     message = client.messages.create(
     messaging_service_sid='', #ikkada kuda twilio service id enter cheyali
     body=message,
-    to="+91"+str(number)
+    to=number
     )
     print(message.sid)
 window = tk.Tk()
@@ -188,8 +189,9 @@ def manually_fill():
 
             def create_csv():
                 import csv
+                BASE_DIR = Path(__file__).resolve().parent
                 cursor.execute("select * from " + DB_table_name + ";")
-                csv_name = 'F:/main project/attendance main/Face-Recognition-Attendance-System-main/Attendance/Manually Attendance/'+DB_table_name+'.csv'
+                csv_name = BASE_DIR / "Attendance" / "Manually Attendance" / f"{DB_table_name}.csv"
                 with open(csv_name, "w") as csv_file:
                     csv_writer = csv.writer(csv_file)
                     csv_writer.writerow(
@@ -248,9 +250,14 @@ def manually_fill():
 
             def attf():
                 import subprocess
-                subprocess.Popen(
-                    r'explorer /select,"F:\main project\attendance main\Face-Recognition-Attendance-System-main\Attendance\Manually Attendance\-------Check atttendance-------"')
+                # Get the directory of the current script
+                BASE_DIR = Path(__file__).resolve().parent
 
+                # Define the target folder dynamically
+                target_folder = BASE_DIR / "Attendance" / "Manually Attendance" / "-------Check atttendance-------"
+
+                # Open File Explorer and select the folder
+                subprocess.Popen(r'explorer /select,"{}"'.format(target_folder))
             attf = tk.Button(MFW,  text="Check Sheets", command=attf, fg="white", bg="black",
                              width=12, height=1, activebackground="white", font=('times', 14, ' bold '))
             attf.place(x=730, y=410)
@@ -509,7 +516,7 @@ def subjectchoose():
                 insert_data = f"""
                 INSERT INTO {DB_Table_name} (ENROLLMENT, NAME,PHONE, DATE, TIME) VALUES (%s, %s,%s, %s, %s)
                 """
-                VALUES = (str(Id), str(aa[0]),(str(phone[0])), str(date), str(timeStamp))
+                VALUES = (str(Id),str(aa[0]),(str(phone[0])), str(date), str(timeStamp))
                 try:
                     #cursor.execute(sql)  # for create a table
                     # For insert data into table
@@ -519,7 +526,9 @@ def subjectchoose():
                     print(ex)  #
 
                 M = 'Attendance filled Successfully'
-                send_sms(str(phone[0]), "Dear "+aa[0]+" your attendance has been marked successfully")   # sms function ikkada call chestuna
+                print(str(phone[0]))
+                print(f"+91{int(phone[0])}")
+                send_sms(f"+91{int(phone[0])}", "Dear "+aa[0]+" your attendance has been marked successfully")   # sms function ikkada call chestuna
                 Notifica.configure(text=M, bg="Green", fg="white",
                                    width=33, font=('times', 15, 'bold'))
                 Notifica.place(x=20, y=250)
@@ -532,7 +541,10 @@ def subjectchoose():
                 root = tkinter.Tk()
                 root.title("Attendance of " + Subject)
                 root.configure(background='grey80')
-                cs = 'F:/main project/attendance main/Face-Recognition-Attendance-System-main/' + fileName
+                BASE_DIR = Path(__file__).resolve().parent
+
+                # Construct the file path dynamically
+                cs = BASE_DIR / fileName
                 with open(cs, newline="") as file:
                     reader = csv.reader(file)
                     r = 0
@@ -558,10 +570,13 @@ def subjectchoose():
     Notifica = tk.Label(windo, text="Attendance filled Successfully", bg="Green", fg="white", width=33,
                         height=2, font=('times', 15, 'bold'))
 
+    BASE_DIR = Path(__file__).resolve().parent
+
     def Attf():
         import subprocess
-        subprocess.Popen(
-            r'explorer /select,"F:\main project\attendance main\Face-Recognition-Attendance-System-main\Attendance\Manually Attendance\-------Check atttendance-------"')
+        """Opens File Explorer and selects the attendance folder dynamically."""
+        target_folder = BASE_DIR / "Attendance" / "Manually Attendance" / "-------Check atttendance-------"
+        subprocess.Popen(f'explorer /select,"{target_folder}"')
 
     attf = tk.Button(windo,  text="Check Sheets", command=Attf, fg="white", bg="black",
                      width=12, height=1, activebackground="white", font=('times', 14, ' bold '))
@@ -579,7 +594,6 @@ def subjectchoose():
                        activebackground="white", font=('times', 15, ' bold '))
     fill_a.place(x=250, y=160)
     windo.mainloop()
-
 
 def admin_panel():
     win = tk.Tk()
@@ -601,7 +615,11 @@ def admin_panel():
                 root.title("Student Details")
                 root.configure(background='grey80')
 
-                cs = 'F:/main project/attendance main/Face-Recognition-Attendance-System-main/StudentDetails/StudentDetails.csv'
+                BASE_DIR = Path(__file__).resolve().parent
+
+                # Construct the file path dynamically
+                cs = BASE_DIR / "StudentDetails" / "StudentDetails.csv"
+
                 with open(cs, newline="") as file:
                     reader = csv.reader(file)
                     r = 0
