@@ -10,17 +10,16 @@ import datetime
 import time
 from twilio.rest import Client
 from pathlib import Path
-# lines  193 253 536 565 605 lo path change cheyali mi system lo untunna path ki
 def send_sms(number, message):
     account_sid = ''
-    auth_token = '' # Ni twilio account details enter cheyali
+    auth_token = '' 
     client = Client(account_sid, auth_token)
     message = client.messages.create(
-    messaging_service_sid='', #ikkada kuda twilio service id enter cheyali
+    messaging_service_sid='',
     body=message,
     to=number
     )
-    print(message.sid)
+    print(message)
 window = tk.Tk()
 window.title("FaceFusion Attendance System")
 
@@ -74,7 +73,7 @@ def manually_fill():
         try:
             global cursor
             connection = pymysql.connect(
-                host='localhost', user='root', password='', db='uday')
+                host='localhost', user='root', password='21792179', db='uday')
             cursor = connection.cursor()
         except Exception as e:
             print(e)
@@ -155,75 +154,94 @@ def manually_fill():
             
             PH_ENTRY = tk.Entry(
                 MFW, width=20, bg="white", fg="black", font=('times', 23))
-            STUDENT_ENTRY.place(x=290, y=305)
+            PH_ENTRY.place(x=290, y=305)
 
             def remove_PH():
                 PH_ENTRY.delete(first=0, last=22)
 
-            # get important variable
+             #get important variable
             def enter_data_DB():
-                ENROLLMENT = ENR_ENTRY.get()
-                STUDENT = STUDENT_ENTRY.get()
-                PHONE=PH.get()
-                if ENROLLMENT == '':
-                    err_screen1()
-                elif STUDENT == '':
-                    err_screen1()
-                elif PHONE == '':
-                    err_screen1()
-                else:
-                    time = datetime.datetime.fromtimestamp(
-                        ts).strftime('%H:%M:%S')
-                    Hour, Minute, Second = time.split(":")
-                    Insert_data = "INSERT INTO " + DB_table_name + \
-                        " (ID,ENROLLMENT,NAME,PHONE,DATE,TIME) VALUES (0, %s, %s,%s, %s,%s)"
-                    VALUES = (str(ENROLLMENT), str(
-                        STUDENT), str(PHONE),str(Date), str(time))
-                    try:
-                        cursor.execute(Insert_data, VALUES)
-                    except Exception as e:
-                        print(e)
-                    ENR_ENTRY.delete(first=0, last=22)
-                    STUDENT_ENTRY.delete(first=0, last=22)
-                    PH_ENTRY.delete(first=0, last=22)
+            #    ENROLLMENT = ENR_ENTRY.get()
+            #   STUDENT = STUDENT_ENTRY.get()
+            #     PHONE=PH.get()
+            #     if ENROLLMENT == '':
+            #         err_screen1()
+            #     elif STUDENT == '':
+            #         err_screen1()
+            #     elif PHONE == '':
+            #         err_screen1()
+            #     else:
+            #         time = datetime.datetime.fromtimestamp(
+            #             ts).strftime('%H:%M:%S')
+            #         Hour, Minute, Second = time.split(":")
+            #         Insert_data = "INSERT INTO " + DB_table_name + \
+            #             " (ID,ENROLLMENT,NAME,PHONE,DATE,TIME) VALUES (0, %s, %s,%s, %s,%s)"
+            #         VALUES = (str(ENROLLMENT), str(
+            #             STUDENT), str(PHONE),str(Date), str(time))
+            #         try:
+            #             cursor.execute(Insert_data, VALUES)
+            #         except Exception as e:
+            #             print(e)
+            #         ENR_ENTRY.delete(first=0, last=22)
+            #         STUDENT_ENTRY.delete(first=0, last=22)
+            #         PH_ENTRY.delete(first=0, last=22)
+
+             import csv
+            import tkinter
+            from pathlib import Path
 
             def create_csv():
-                import csv
+                # Ensure these variables are already defined
+                # global STUDENT_ENTRY, PH_ENTRY, subb, ENR_ENTRY 
+                ENROLLMENT = ENR_ENTRY.get()
+                print(ENROLLMENT)
+                STUDENT = STUDENT_ENTRY.get()
+                print(STUDENT)
+                PHONE = PH_ENTRY.get()
+                print(PHONE)
+
                 BASE_DIR = Path(__file__).resolve().parent
-                cursor.execute("select * from " + DB_table_name + ";")
-                csv_name = BASE_DIR / "Attendance" / "Manually Attendance" / f"{DB_table_name}.csv"
-                with open(csv_name, "w") as csv_file:
+                csv_name = BASE_DIR / "Attendance" / "Manually Attendance" / f"{subb}.csv"
+
+                # Ensure directory exists
+                csv_name.parent.mkdir(parents=True, exist_ok=True)
+
+                # Create CSV file
+                with open(csv_name, "w", newline="") as csv_file:
                     csv_writer = csv.writer(csv_file)
-                    csv_writer.writerow(
-                        [i[0] for i in cursor.description])  # write headers
-                    csv_writer.writerows(cursor)
-                    O = "CSV created Successfully"
-                    Notifi.configure(text=O, bg="Green", fg="white",
-                                     width=33, font=('times', 19, 'bold'))
-                    Notifi.place(x=180, y=380)
-                import csv
-                import tkinter
+                    csv_writer.writerow(["Enrollment", "Name", "Phone", "Subject"])  # Headers
+                    # Writing a single row correctly
+                    csv_writer.writerow([str(ENROLLMENT), str(STUDENT), str(PHONE), str(subb)])
+                send_sms(f"+91{str(PHONE)}", f"Dear {STUDENT}, your attendance has been marked successfully")
+                print(f"SMS sent to: +91{str(PHONE)}")
+
+                # Notify CSV creation (Assuming Notifi is defined in Tkinter GUI)
+                O = "CSV created Successfully"
+                Notifi.configure(text=O, bg="Green", fg="white",
+                                width=33, font=('times', 19, 'bold'))
+                Notifi.place(x=180, y=380)
+
+                # Create Tkinter window
                 root = tkinter.Tk()
-                root.title("Attendance of " + subb)
+                root.title(f"Attendance of {subb}")
                 root.configure(background='grey80')
+
+                # Display CSV content in GUI
                 with open(csv_name, newline="") as file:
                     reader = csv.reader(file)
-                    r = 0
-
-                    for col in reader:
-                        c = 0
-                        for row in col:
-                            # i've added some styling
-                            label = tkinter.Label(root, width=18, height=1, fg="black", font=('times', 13, ' bold '),
-                                                  bg="white", text=row, relief=tkinter.RIDGE)
+                    for r, col in enumerate(reader):
+                        for c, row in enumerate(col):
+                            label = tk.Label(root, width=18, height=1, fg="black",
+                                            font=('times', 13, ' bold '), bg="white",
+                                            text=row, relief=tk.RIDGE)
                             label.grid(row=r, column=c)
-                            c += 1
-                        r += 1
+                
                 root.mainloop()
 
-            Notifi = tk.Label(MFW, text="CSV created Successfully", bg="Green", fg="white", width=33,
-                              height=2, font=('times', 19, 'bold'))
 
+                Notifi = tk.Label(MFW, text="CSV created Successfully", bg="Green", fg="white", width=33,
+                              height=2, font=('times', 19, 'bold'))
+                #  Notifi.place(x=180, y=380)
             c1ear_enroll = tk.Button(MFW, text="Clear", command=remove_enr, fg="white", bg="black", width=10,
                                      height=1,
                                      activebackground="white", font=('times', 15, ' bold '))
@@ -247,6 +265,7 @@ def manually_fill():
                                  height=2,
                                  activebackground="white", font=('times', 15, ' bold '))
             MAKE_CSV.place(x=570, y=400)
+            # Notifi.place(x=180, y=380)
 
             def attf():
                 import subprocess
@@ -431,6 +450,8 @@ def subjectchoose():
                             global date
                             global timeStamp
                             Subject = tx.get()
+                            print(Subject)
+                            print(sub)
                             ts = time.time()
                             date = datetime.datetime.fromtimestamp(
                                 ts).strftime('%Y-%m-%d')
@@ -491,8 +512,7 @@ def subjectchoose():
                 try:
                     global cursor
                     connection = pymysql.connect(
-                        host='localhost', user='root', password='', db='uday')  # ikkada na local database tho connect chesa present csv tho continue avdham taruwatha final review ki na database lo chupidam
-                    cursor = connection.cursor()
+                        host='localhost', user='root', password='21792179', db='uday')  
                 except Exception as e:
                     print(e)
 
@@ -713,7 +733,7 @@ def trainimg():
     res = "Model Trained"  # +",".join(str(f) for f in Id)
     Notification.configure(text=res, bg="olive drab",
                            width=50, font=('times', 18, 'bold'))
-    Notification.place(x=250, y=400)
+    Notification.place(x=350, y=400)
 
 
 def getImagesAndLabels(path):
